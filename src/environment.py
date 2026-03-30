@@ -9,7 +9,7 @@ Action space : a ∈ {0, 1, 2}
                  1 → test / surveil   (reduces observation noise σ)
                  2 → lockdown         (reduces β by lockdown_factor)
 
-Observations : o ~ Poisson(ρ · I · N)   noisy hospitalisation counts
+Observations : o ~ Normal(ρ · I, σ_obs)   noisy hospitalisation rates (normalized)
                ρ  = ascertainment rate (what fraction we detect)
                N  = population size
 
@@ -106,15 +106,16 @@ def observe(state: jnp.ndarray,
             params: EpiParams,
             key: jax.Array) -> jnp.ndarray:
     """
-    Generate a noisy hospitalisation-count observation.
+    Generate a noisy hospitalisation-rate observation.
 
     Under action=1 (surveillance), ascertainment rate doubles.
 
-    o ~ Poisson(ρ_eff · I · N)
+    Raw count: c ~ Poisson(ρ_eff · I · N)
+    Normalized observation: o = c / N ~ approximately Normal(ρ_eff · I, σ_obs)
 
     Returns
     -------
-    obs : jnp.ndarray shape (1,)  — observed count (float for JAX compat)
+    obs : jnp.ndarray shape (1,)  — observed infection rate (float for JAX compat)
     """
     _, I, _ = state
 
@@ -122,9 +123,13 @@ def observe(state: jnp.ndarray,
                         jnp.minimum(params.rho / params.noise_reduction, 1.0),
                         params.rho)
 
+    # Generate raw count
     lam = rho_eff * I * params.N
-    obs = random.poisson(key, lam=lam, shape=(1,)).astype(jnp.float32)
-    return obs
+    count = random.poisson(key, lam=lam, shape=(1,)).astype(jnp.float32)
+
+    # Normalize to rate
+    obs_rate = count[0] / params.N
+    return jnp.array([obs_rate])
 
 
 # ---------------------------------------------------------------------------
@@ -136,20 +141,18 @@ def log_likelihood(obs: jnp.ndarray,
                    action: int,
                    params: EpiParams) -> float:
     """
-    log p(o | I, a)  under the Poisson observation model.
+    log p(o | I, a) under the Gaussian observation model on normalized rates.
 
     Used in the variational update to weight the posterior.
     """
     rho_eff = jnp.where(action == 1,
                         jnp.minimum(params.rho / params.noise_reduction, 1.0),
                         params.rho)
-    lam = rho_eff * I_belief * params.N + 1e-8   # numerical stability
-    k = obs[0]
+    mu_obs = rho_eff * I_belief
+    sigma_obs = jnp.sqrt(mu_obs / params.N + 1e-8)
 
-    # log Poisson(k; λ) = k log λ - λ - log(k!)
-    # Use jax.scipy for numerically stable version
     import jax.scipy.stats as jss
-    return jss.poisson.logpmf(k.astype(jnp.int32), lam)
+    return jss.norm.logpdf(obs[0], loc=mu_obs, scale=sigma_obs)
 
 
 # ---------------------------------------------------------------------------

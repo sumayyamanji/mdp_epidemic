@@ -118,7 +118,7 @@ def run_episode(
             I_est  = float(new_belief.mu[1])
             print(
                 f"t={t:3d} | I_true={I_true:.4f}  I_est={I_est:.4f} "
-                f"| obs={int(obs[0]):5d} | action={ACTION_NAMES[action]:<14s}"
+                f"| obs={float(obs[0]):.4f} | action={ACTION_NAMES[action]:<14s}"
                 f"| F={float(F_history[-1]):6.3f}"
             )
 

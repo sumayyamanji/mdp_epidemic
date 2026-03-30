@@ -5,7 +5,7 @@
 
 This repository implements an **Active Inference agent** that controls a stochastic SIR epidemic under **partial observability**. The agent never sees the true infection state — only noisy hospitalisation counts. It must simultaneously *infer* the hidden state (perception) and *act* to control the outbreak (action), using the same mathematical objective for both.
 
-The core claim: **perception and action are two sides of the same coin** — both minimise Variational Free Energy.
+The core claim: **Perception minimises variational free energy, while action minimises its expected future counterpart (Expected Free Energy).**
 
 ---
 
@@ -31,7 +31,7 @@ We model the epidemic as a **Partially Observable Markov Decision Process**:
 
 - **Hidden state**: $s_t = (S_t, I_t, R_t) \in [0,1]^3$, fractions of Susceptible / Infected / Recovered  
 - **Action**: $a_t \in \{0, 1, 2\}$ — do nothing, deploy surveillance, impose lockdown  
-- **Observation**: $o_t \sim \text{Poisson}(\rho \cdot I_t \cdot N)$ — noisy hospitalisation counts  
+- **Observation**: $o_t \sim \text{Poisson}(\rho \cdot I_t \cdot N)$ — noisy hospitalisation counts (normalized to rates for inference)  
 - **Ascertainment rate** $\rho \ll 1$: most cases go undetected
 
 The agent sees $o_t$, not $s_t$. This is the fundamental challenge of epidemic management.
@@ -59,9 +59,13 @@ $$p(o_{1:T}, s_{1:T} \mid a_{1:T}) = p(s_0) \prod_{t=1}^{T} p(s_t \mid s_{t-1}, 
 
 ### Likelihood: $p(o_t \mid s_t, a_t)$
 
-$$o_t \mid s_t, a_t \sim \text{Poisson}\!\left(\rho(a_t) \cdot I_t \cdot N\right)$$
+$$o_t \mid s_t, a_t \sim \text{Normal}\!\left(\rho(a_t) \cdot I_t,\; \sigma_{\text{obs}}^2\right)$$
+
+where $\sigma_{\text{obs}}^2 \approx \rho(a_t) \cdot I_t / N$ (normalized Poisson variance).
 
 Surveillance ($a=1$) increases ascertainment: $\rho(1) = \min(\rho / \lambda_\sigma, 1)$.
+
+**Observations are normalised by population size so that inference operates on infection rates rather than raw counts, improving numerical stability and alignment with the continuous state representation.**
 
 ### Transition prior: $p(s_t \mid s_{t-1}, a_t)$
 
@@ -147,7 +151,7 @@ where $\tau$ is a temperature parameter.
 
 ## 5. The Exploration–Exploitation Decomposition
 
-The money shot. $G(a)$ naturally decomposes into two competing drives:
+The money shot. $G(a)$ uses a tractable approximation that captures two competing drives:
 
 ### Epistemic Value (Exploration)
 
@@ -165,7 +169,7 @@ This measures the KL divergence between the predicted future state and the prefe
 
 - **Lockdown** ($a=2$) reduces $\beta$ → drives $I$ toward 0 → preferred → lower $G_{\text{pragmatic}}$.
 
-**The critical insight:** neither component requires a hand-crafted bonus. The tension between exploration (test to learn the state) and exploitation (act to change the state) falls out of the mathematics automatically.
+**The critical insight:** We use entropy instead of full information gain, and state preferences rather than outcome preferences. This approximation naturally decomposes exploration (test to learn the state) and exploitation (act to change the state) without hand-crafted bonuses. The tension falls out of the mathematics automatically.
 
 | Phase | Dominant drive | Agent's behaviour |
 |-------|----------------|-------------------|

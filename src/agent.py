@@ -11,7 +11,7 @@ same objective: minimise (Expected) Free Energy.
 
 where P̃(o', s') encodes the agent's *preferences* (desired outcomes).
 
-Crucially, G decomposes into:
+Crucially, G uses a tractable approximation that captures:
 
     G(a) = Epistemic value  +  Pragmatic value
          = -H[P(o'|a, Q)]  +  KL[ Q(s'|a) ‖ P̃(s') ]
@@ -21,9 +21,10 @@ Crucially, G decomposes into:
     Pragmatic  (exploitation): actions that achieve preferred outcomes →
                                drives lockdown when I is high
 
-This decomposition falls naturally from the mathematics — the agent doesn't
-need a hand-crafted exploration bonus. Uncertainty reduction is intrinsically
-motivated by the Free Energy principle.
+This approximation uses entropy instead of full information gain, and state
+preferences rather than outcome preferences. The decomposition falls naturally
+from the mathematics — the agent doesn't need a hand-crafted exploration bonus.
+Uncertainty reduction is intrinsically motivated by the Free Energy principle.
 
 References
 ----------
@@ -68,11 +69,10 @@ def expected_free_energy(belief: BeliefState,
     """
     Compute G(a) = Epistemic value + Pragmatic value for a candidate action.
 
-    We approximate G by Monte Carlo sampling from the predicted belief:
+    We use a tractable approximation of the Expected Free Energy that captures
+    epistemic (uncertainty-reducing) and pragmatic (goal-directed) components.
 
-        s' ~ Q(s' | a) = N(μ_{t+1|t}, Σ_{t+1|t})
-
-    Epistemic value (information gain):
+    Epistemic value (information gain approximation):
         -H[P(o'|a, Q)] ≈ -E_{s'}[ H[Poisson(ρ I' N)] ]
                        = -E_{s'}[ ½ log(2πe ρ I' N) ]     (Gaussian approx)
 
@@ -108,13 +108,14 @@ def expected_free_energy(belief: BeliefState,
     I_samples = s_samples[:, 1]   # infected fraction
 
     # --- Epistemic value ---
-    # Entropy of the Poisson observation model  H[Poisson(λ)] ≈ ½log(2πeλ)
+    # Entropy of the Gaussian observation model H[Normal(μ, σ)] = ½ log(2π e σ²)
     rho_eff = jnp.where(action == 1,
                         jnp.minimum(params.rho / params.noise_reduction, 1.0),
                         params.rho)
-    lam_samples = rho_eff * I_samples * params.N + 1e-8
+    mu_obs_samples = rho_eff * I_samples
+    sigma_obs_samples = jnp.sqrt(mu_obs_samples / params.N + 1e-8)
     # Negative entropy of predicted observations (we want to reduce it)
-    H_obs = 0.5 * jnp.log(2 * jnp.pi * jnp.e * lam_samples)
+    H_obs = 0.5 * jnp.log(2 * jnp.pi * jnp.e * sigma_obs_samples ** 2)
     epistemic = -jnp.mean(H_obs)   # negative entropy → lower is less uncertain
 
     # --- Pragmatic value ---

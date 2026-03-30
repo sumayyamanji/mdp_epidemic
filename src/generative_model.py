@@ -133,20 +133,29 @@ def log_obs_likelihood(obs: jnp.ndarray,
     E_{Q(s)}[ log P(o | s, a) ]
 
     We evaluate the expected log-likelihood under the current belief,
-    approximated by plugging in the mean (delta approximation):
+    approximated by plugging in the mean (delta approximation).
 
-        ≈  log P(o | μ_I, a)
+    Observations are normalized rates: o ~ Normal(ρ(a) * I, σ_obs)
+    where σ_obs is chosen to match the Poisson variance.
 
-    For a Poisson likelihood:
-        log P(o | I, a) = o log(ρ I N) - ρ I N - log(o!)
+    For a Gaussian likelihood:
+        log P(o | I, a) = -½ log(2π σ²) - (o - μ)²/(2σ²)
+        where μ = ρ_eff * I, σ² ≈ ρ_eff * I / N (Poisson variance normalized)
     """
     I = belief.mu[1]
     rho_eff = jnp.where(action == 1,
                         jnp.minimum(params.rho / params.noise_reduction, 1.0),
                         params.rho)
-    lam = rho_eff * I * params.N + 1e-8
-    k = obs[0].astype(jnp.int32)
-    return jss.poisson.logpmf(k, lam)
+
+    # Mean of observation
+    mu_obs = rho_eff * I
+
+    # Variance approximation: Poisson variance is λ = ρ*I*N, normalized by N² gives ρ*I/N
+    # Use a reasonable observation noise
+    sigma_obs = jnp.sqrt(mu_obs / params.N + 1e-6)  # Add small constant for stability
+
+    o = obs[0]
+    return jss.norm.logpdf(o, loc=mu_obs, scale=sigma_obs)
 
 
 # ---------------------------------------------------------------------------

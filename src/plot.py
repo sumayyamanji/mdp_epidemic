@@ -41,7 +41,7 @@ def fig_belief_tracking(results: dict, save_path: str = None):
     true_I   = results["true_states"][:, 1]
     mu_I     = results["belief_means"][:, 1]
     std_I    = results["belief_stds"][:, 1]
-    obs      = results["observations"] / (results["params"].rho * results["params"].N)
+    obs      = results["observations"]  # Already normalized rates
     actions  = results["actions"]
     T        = len(true_I)
     t        = np.arange(T)
@@ -57,8 +57,8 @@ def fig_belief_tracking(results: dict, save_path: str = None):
     # Action background
     _action_background(ax1, actions, alpha=0.15)
 
-    # Observations (noisy)
-    ax1.scatter(t, obs, s=8, color="#888", alpha=0.5, label="Observations (noisy)", zorder=2)
+    # Observations (noisy rates)
+    ax1.scatter(t, obs, s=8, color="#888", alpha=0.5, label="Observations (noisy rates)", zorder=2)
 
     # Posterior uncertainty band
     ax1.fill_between(t, mu_I - 2 * std_I, mu_I + 2 * std_I,
