@@ -133,7 +133,7 @@ $$\log p(o_t) \geq \mathbb{E}_Q\left[\log \frac{p(o_t, s_t)}{Q(s_t)}\right]$$
 
 $$\mathbb{E}_Q\left[\log \frac{p(o_t, s_t)}{Q(s_t)}\right] = \mathbb{E}_Q[\log p(o_t \mid s_t)] + \mathbb{E}_Q\left[\log \frac{p(s_t)}{Q(s_t)}\right]$$
 
-**Step 8.** The second term is $-D_{\text{KL}}(Q(s_t) \| p(s_t))$, since by definition $D_{\text{KL}}(Q \| P) = \mathbb{E}_Q[\log Q - \log P]$, so $\mathbb{E}_Q[\log P - \log Q] = -D_{\text{KL}}(Q \| P)$. This gives the ELBO:
+**Step 8.** The second term is $-D_{\text{KL}}(Q(s_t) \| p(s_t))$, since by definition $D_{\text{KL}}(Q \| P) = \mathbb{E}_Q[\log Q - \log P]$ :
 
 $$\log p(o_t) \geq \underbrace{\mathbb{E}_Q[\log p(o_t \mid s_t)] - D_{\text{KL}}[Q(s_t) \| p(s_t)]}_{\text{ELBO} = \mathcal{L}(\phi)}$$
 
