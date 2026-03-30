@@ -20,6 +20,7 @@ The core claim: **Perception minimises Variational Free Energy $F$. Action minim
 7. [Results](#7-results)
 8. [Installation](#8-installation)
 9. [References](#9-references)
+10. [Glossary](#10-glossary)
 
 ---
 
@@ -272,8 +273,8 @@ Removing the epistemic drive (greedy agent, $\tau \to 0$) leads to later detecti
 ## 8. Installation
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/active-inference-epidemic
-cd active-inference-epidemic
+git clone https://github.com/sumayyamanji/mdp_epidemic
+cd mdp_epidemic
 pip install jax jaxlib numpy matplotlib jupyter
 ```
 
@@ -304,7 +305,7 @@ Generate all figures by running `notebooks/exploration.ipynb` cell by cell.
 
 ---
 
-## Glossary
+## 10. Glossary
 
 **Ascertainment rate** $\rho$: the fraction of true infections that are actually detected and recorded as hospitalisations. In practice $\rho \ll 1$, most cases go unobserved.
 
