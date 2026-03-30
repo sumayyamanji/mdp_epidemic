@@ -125,23 +125,19 @@ $$\log p(o_t) = \mathbb{E}_Q[\log \frac{p(o_t, s_t)}{Q(s_t)}] + \mathbb{E}_Q[\lo
 
 $$\log p(o_t) = \mathbb{E}_Q[\log \frac{p(o_t, s_t)}{Q(s_t)}] + D_{\text{KL}}[Q(s_t) \| p(s_t \mid o_t)]$$
 
-**Step 6.** Since $D_{\text{KL}} \geq 0$, we know the ELBO is a lower bound on $\log p(o_t)$. But the ELBO as written needs tidying. Expand the log of the fraction:
+**Step 6.** Since $D_{\text{KL}} \geq 0$, dropping it gives a lower bound on $\log p(o_t)$:
 
-$$\mathbb{E}_Q\left[\log \frac{p(o_t, s_t)}{Q(s_t)}\right] = \mathbb{E}_Q\left[\log p(o_t, s_t) - \log Q(s_t)\right]$$
+$$\log p(o_t) \geq \mathbb{E}_Q\left[\log \frac{p(o_t, s_t)}{Q(s_t)}\right]$$
 
-**Step 7.** Factorise the joint using the chain rule and split into separate expectations: 
+**Step 7.** Expand the log of the fraction and factorise the joint $p(o_t, s_t) = p(o_t \mid s_t) \cdot p(s_t)$:
 
-$p(o_t, s_t) = p(o_t \mid s_t) \cdot p(s_t)$:
+$$\mathbb{E}_Q\left[\log \frac{p(o_t, s_t)}{Q(s_t)}\right] = \mathbb{E}_Q[\log p(o_t \mid s_t)] + \mathbb{E}_Q\left[\log \frac{p(s_t)}{Q(s_t)}\right]$$
 
-$$= \mathbb{E}_Q\left[\log p(o_t \mid s_t) + \log p(s_t) - \log Q(s_t)\right]$$
+**Step 8.** The second term is $-D_{\text{KL}}[Q(s_t) \| p(s_t)]$, since by definition $D_{\text{KL}}[Q \| P] = \mathbb{E}_Q[\log Q/P]$, so $\mathbb{E}_Q[\log P/Q] = -D_{\text{KL}}[Q \| P]$. This gives the ELBO:
 
-$$= \mathbb{E}_Q[\log p(o_t \mid s_t)] + \mathbb{E}_Q\left[\log \frac{p(s_t)}{Q(s_t)}\right]$$
+$$\log p(o_t) \geq \underbrace{\mathbb{E}_Q[\log p(o_t \mid s_t)] - D_{\text{KL}}[Q(s_t) \| p(s_t)]}_{\text{ELBO} = \mathcal{L}(\phi)}$$
 
-**Step 8.** The second term is $-D_{\text{KL}}[Q(s_t) \| p(s_t)]$ by definition, giving:
-
-$$\log p(o_t) \geq \mathbb{E}_Q[\log p(o_t \mid s_t)] - D_{\text{KL}}[Q(s_t) \| p(s_t)]$$
-
-Note: the KL in the ELBO is between $Q$ and the **prior** $p(s_t)$, not the posterior $p(s_t \mid o_t)$. Those are two different KL terms on opposite sides of the identity.
+The KL here is between $Q$ and the **prior** $p(s_t)$, not the posterior $p(s_t \mid o_t)$. Those are two different KL terms on opposite sides of the identity. The ELBO has two competing forces: the likelihood term pulls $Q$ toward the data, the KL term pulls $Q$ back toward the prior. The balance between them is approximate Bayesian inference.
 
 $$\log p(o_t) \geq \underbrace{\mathbb{E}_{Q}[\log p(o_t \mid s_t)] - D_{\text{KL}}[Q(s_t) \| p(s_t)]}_{\text{ELBO} = \mathcal{L}(\phi)}$$
 
