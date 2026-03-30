@@ -256,22 +256,9 @@ python simulate.py
 
 ### Generate all figures
 
-```bash
-cd src
-python -c "
-from simulate import run_episode, run_ablation
-from plot import *
+Run the notebook: 
 
-r = run_episode(n_steps=120, verbose=False)
-fig_belief_tracking(r, save_path='../results/belief_tracking.png')
-fig_action_decomp(r, save_path='../results/action_decomp.png')
-fig_phase_portrait(r, save_path='../results/phase_portrait.png')
-
-abl = run_ablation(n_steps=120)
-fig_ablation(abl, save_path='../results/ablation.png')
-print('Figures saved to results/')
-"
-```
+`notebooks/exploration.ipynb`
 
 ---
 
@@ -282,6 +269,8 @@ print('Figures saved to results/')
 - Da Costa, L. et al. (2020). **Active inference on discrete state-spaces: A synthesis**. *Journal of Mathematical Psychology*, 99, 102474.
 - Wainwright, M. & Jordan, M. (2008). **Graphical models, exponential families, and variational inference**. *Foundations and Trends in Machine Learning*, 1(1–2), 1–305.
 - Kermack, W. O. & McKendrick, A. G. (1927). **A contribution to the mathematical theory of epidemics**. *Proceedings of the Royal Society A*, 115(772), 700–721.
+- Bottemanne, H. & Friston, K.J. (2021). **An active inference account of protective behaviours during the COVID-19 pandemic**. *Cognitive, Affective, & Behavioral Neuroscience*, 21(5), 1117–1129. https://doi.org/10.3758/s13415-021-00947-0
+- Wood, F., Warrington, A., Naderiparizi, S., Weilbach, C., Masrani, V., Harvey, W., Ścibior, A., Beronov, B., Grefenstette, J., Campbell, D. & Nasseri, S.A. (2022). **Planning as Inference in Epidemiological Dynamics Models**. *Frontiers in Artificial Intelligence*, 4, 550603. doi: 10.3389/frai.2021.550603
 
 ---
 

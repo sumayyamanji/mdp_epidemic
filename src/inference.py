@@ -89,7 +89,7 @@ def update_belief(prior: BeliefState,
         log_var = log_var - lr_logvar  * g_logvar
 
         # Constrain log_var to avoid degenerate posteriors
-        log_var = jnp.clip(log_var, -10.0, 0.0)
+        log_var = jnp.clip(log_var, -10.0, -1.0)
         # Constrain mu to valid probability range
         mu = jnp.clip(mu, 1e-6, 1.0 - 1e-6)
 

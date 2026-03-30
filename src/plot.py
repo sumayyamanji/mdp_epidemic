@@ -55,13 +55,13 @@ def fig_belief_tracking(results: dict, save_path: str = None):
             spine.set_color("#333")
 
     # Action background
-    _action_background(ax1, actions, alpha=0.15)
+    _action_background(ax1, actions, alpha=0.06)
 
     # Observations (noisy rates)
     ax1.scatter(t, obs, s=8, color="#888", alpha=0.5, label="Observations (noisy rates)", zorder=2)
 
     # Posterior uncertainty band
-    ax1.fill_between(t, mu_I - 2 * std_I, mu_I + 2 * std_I,
+    ax1.fill_between(t, np.maximum(mu_I - 2 * std_I, 0), mu_I + 2 * std_I,
                      color="#00D4FF", alpha=0.15, label="Posterior ±2σ")
 
     # Posterior mean
