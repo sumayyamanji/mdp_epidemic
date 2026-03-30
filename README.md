@@ -5,7 +5,7 @@
 
 This repo implements an **Active Inference agent** that controls a stochastic SIR epidemic under **partial observability**. The agent never sees the true infection state, only noisy hospitalisation counts. It has to simultaneously *infer* the hidden state (perception) and *act* to control the outbreak (action), using the same mathematical objective for both.
 
-The core claim: **Perception minimises Variational Free Energy $F$. Action minimises its expected future counterpart, Expected Free Energy $G$. Both are consequences of a single imperative: resist surprise.**
+**The core claim: perception minimises Variational Free Energy $F$ to infer the hidden epidemic state. Action selects interventions by minimising Expected Free Energy $G$, which naturally decomposes into exploring when uncertain and exploiting when not.**
 
 ---
 
@@ -281,9 +281,13 @@ The full Active Inference agent (epistemic + pragmatic) achieves a substantially
 
 The results show that framing epidemic control as variational inference rather than reward maximisation produces an agent that naturally balances information-gathering and intervention without any explicit exploration bonus. 
 
-The exploration-exploitation decomposition emerging from a single mathematical objective ($G$) rather than from engineering is the central result, and it suggests that Active Inference may be a principled alternative to RL in any sequential decision problem where the hidden state is partially observable and costly to probe. 
+The exploration-exploitation decomposition emerging from a single mathematical objective ($G$) rather than from engineering, suggests that Active Inference may be a principled alternative to RL in any sequential decision problem where the hidden state is partially observable and costly to probe. 
+
+The belief tracking results confirm the perception half: minimising $F$ recovers the hidden infection curve from observations capturing less than 15% of true cases. The G decomposition and ablation confirm the action half: selecting interventions by minimising $G$ produces an agent that deploys surveillance when uncertain and locks down when not, without any explicit exploration bonus.
 
 More broadly, the framework points toward public health policies that are uncertainty-aware by construction: a government minimising Expected Free Energy would **deploy surveillance** when the **state is unknown** (high epistemic value), and **intervene** when it is **known and bad** (high pragmatic cost).
+
+
 ---
 
 ## 9. Installation
