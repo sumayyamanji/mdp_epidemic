@@ -139,10 +139,6 @@ $$\log p(o_t) \geq \underbrace{\mathbb{E}_Q[\log p(o_t \mid s_t)] - D_{\text{KL}
 
 The KL here is between $Q$ and the **prior** $p(s_t)$, not the posterior $p(s_t \mid o_t)$. Those are two different KL terms on opposite sides of the identity. The ELBO has two competing forces: the likelihood term pulls $Q$ toward the data, the KL term pulls $Q$ back toward the prior. The balance between them is approximate Bayesian inference.
 
-$$\log p(o_t) \geq \underbrace{\mathbb{E}_{Q}[\log p(o_t \mid s_t)] - D_{\text{KL}}[Q(s_t) \| p(s_t)]}_{\text{ELBO} = \mathcal{L}(\phi)}$$
-
-The ELBO has two competing forces: the likelihood term pulls $Q$ toward the data, the KL term pulls $Q$ back toward the prior. The balance between them is approximate Bayesian inference.
-
 Flipping the sign gives the **Variational Free Energy**:
 
 $$\boxed{F(\phi) = -\mathcal{L}(\phi) = D_{\text{KL}}[Q_\phi(s_t) \| p(s_t)] - \mathbb{E}_{Q_\phi}[\log p(o_t \mid s_t)]}$$
@@ -304,4 +300,36 @@ Generate all figures by running `notebooks/exploration.ipynb` cell by cell.
 
 ---
 
-*Built as a demonstration that the mathematics of Bayesian brain theory (Friston's Free Energy Principle) applies directly to public health decision-making. The "brain" is the government, the "body" is the population, the "environment" is the epidemic.*
+*Built as a demonstration that the mathematics of Bayesian brain theory (Friston's Free Energy Principle) applies directly to public health decision-making.
+
+---
+
+## Glossary
+
+**Ascertainment rate** $\rho$: the fraction of true infections that are actually detected and recorded as hospitalisations. In practice $\rho \ll 1$, most cases go unobserved.
+
+**Belief state** $Q_\phi(s_t)$: the agent's current probability distribution over the hidden state. Represented as a diagonal Gaussian with parameters $\phi = (\mu, \log \sigma^2)$.
+
+**ELBO (Evidence Lower Bound)** $\mathcal{L}(\phi)$: a lower bound on the log marginal likelihood $\log p(o_t)$. Maximising it is equivalent to minimising Variational Free Energy.
+
+**Expected Free Energy** $G(a)$: the free energy the agent expects to experience under action $a$. Decomposes into epistemic value (uncertainty reduction) and pragmatic value (goal achievement). Action selection minimises $G$.
+
+**Epistemic value**: the component of $G$ that rewards actions expected to reduce uncertainty about the hidden state. Drives exploration and surveillance behaviour.
+
+**Generative model**: the agent's internal model of how observations are caused by hidden states, $p(o_t \mid s_t, a_t)$, and how states evolve, $p(s_t \mid s_{t-1}, a_t)$. Distinct from the true environment.
+
+**KL divergence** $D_{\text{KL}}[Q \| P]$: a measure of how different distribution $Q$ is from distribution $P$. Always non-negative, equals zero only when $Q = P$. Defined as $\mathbb{E}_Q[\log Q - \log P]$.
+
+**Partial observability**: the agent cannot observe the true state $s_t = (S_t, I_t, R_t)$ directly, only the noisy hospitalisation count $o_t$.
+
+**POMDP (Partially Observable Markov Decision Process)**: a decision-making framework where the agent acts in a Markov environment but only receives noisy, incomplete observations of the true state.
+
+**Pragmatic value**: the component of $G$ that rewards actions expected to bring the future state closer to the agent's preferences. Drives exploitation and lockdown behaviour at peak infection.
+
+**Preference model** $\tilde{p}(s)$: encodes the agent's desired outcomes as a prior over states. Replaces the reward function from RL. Goals are achieved by minimising the KL between the predicted future and this prior.
+
+**Surprise**: $-\log p(o_t)$, the negative log probability of an observation under the agent's model. High surprise means the observation was unexpected. Variational Free Energy is a tractable upper bound on surprise.
+
+**Variational Free Energy** $F$: a tractable upper bound on surprise, $F \geq -\log p(o_t)$. The central objective in Active Inference. Minimising $F$ performs approximate Bayesian inference by balancing the likelihood of observations against the KL from the prior.
+
+**Variational inference**: approximating an intractable posterior $p(s_t \mid o_t)$ with a tractable distribution $Q_\phi(s_t)$ by optimising the parameters $\phi$ to minimise $F$.
