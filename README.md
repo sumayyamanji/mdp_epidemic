@@ -125,7 +125,23 @@ $$\log p(o_t) = \mathbb{E}_Q[\log \frac{p(o_t, s_t)}{Q(s_t)}] + \mathbb{E}_Q[\lo
 
 $$\log p(o_t) = \mathbb{E}_Q[\log \frac{p(o_t, s_t)}{Q(s_t)}] + D_{\text{KL}}[Q(s_t) \| p(s_t \mid o_t)]$$
 
-Since $D_{\text{KL}} \geq 0$ always, this gives the bound:
+**Step 6.** Since $D_{\text{KL}} \geq 0$, we know the ELBO is a lower bound on $\log p(o_t)$. But the ELBO as written needs tidying. Expand the log of the fraction:
+
+$$\mathbb{E}_Q\left[\log \frac{p(o_t, s_t)}{Q(s_t)}\right] = \mathbb{E}_Q\left[\log p(o_t, s_t) - \log Q(s_t)\right]$$
+
+**Step 7.** Factorise the joint using the chain rule and split into separate expectations: 
+
+$p(o_t, s_t) = p(o_t \mid s_t) \cdot p(s_t)$:
+
+$$= \mathbb{E}_Q\left[\log p(o_t \mid s_t) + \log p(s_t) - \log Q(s_t)\right]$$
+
+$$= \mathbb{E}_Q[\log p(o_t \mid s_t)] + \mathbb{E}_Q\left[\log \frac{p(s_t)}{Q(s_t)}\right]$$
+
+**Step 8.** The second term is $-D_{\text{KL}}[Q(s_t) \| p(s_t)]$ by definition, giving:
+
+$$\log p(o_t) \geq \mathbb{E}_Q[\log p(o_t \mid s_t)] - D_{\text{KL}}[Q(s_t) \| p(s_t)]$$
+
+Note: the KL in the ELBO is between $Q$ and the **prior** $p(s_t)$, not the posterior $p(s_t \mid o_t)$. Those are two different KL terms on opposite sides of the identity.
 
 $$\log p(o_t) \geq \underbrace{\mathbb{E}_{Q}[\log p(o_t \mid s_t)] - D_{\text{KL}}[Q(s_t) \| p(s_t)]}_{\text{ELBO} = \mathcal{L}(\phi)}$$
 
