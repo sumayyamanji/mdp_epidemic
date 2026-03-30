@@ -279,8 +279,11 @@ The full Active Inference agent (epistemic + pragmatic) achieves a substantially
 
 ## 8. Conclusion
 
-The results show that framing epidemic control as variational inference rather than reward maximisation produces an agent that naturally balances information-gathering and intervention without any explicit exploration bonus. The exploration-exploitation decomposition emerging from a single mathematical objective ($G$) rather than from engineering is the central result, and it suggests that Active Inference may be a principled alternative to RL in any sequential decision problem where the hidden state is partially observable and costly to probe. More broadly, the framework points toward a class of public health policies that are uncertainty-aware by construction: a government that minimises Expected Free Energy would deploy surveillance precisely when it is most epistemically valuable, and intervene precisely when the pragmatic cost of inaction is highest.
+The results show that framing epidemic control as variational inference rather than reward maximisation produces an agent that naturally balances information-gathering and intervention without any explicit exploration bonus. 
 
+The exploration-exploitation decomposition emerging from a single mathematical objective ($G$) rather than from engineering is the central result, and it suggests that Active Inference may be a principled alternative to RL in any sequential decision problem where the hidden state is partially observable and costly to probe. 
+
+More broadly, the framework points toward public health policies that are uncertainty-aware by construction: a government minimising Expected Free Energy would **deploy surveillance** when the **state is unknown** (high epistemic value), and **intervene** when it is **known and bad** (high pragmatic cost).
 ---
 
 ## 9. Installation
