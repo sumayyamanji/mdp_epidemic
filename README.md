@@ -18,9 +18,10 @@ The core claim: **Perception minimises Variational Free Energy $F$. Action minim
 5. [The Exploration-Exploitation Decomposition](#5-the-exploration-exploitation-decomposition)
 6. [Implementation](#6-implementation)
 7. [Results](#7-results)
-8. [Installation](#8-installation)
-9. [References](#9-references)
-10. [Glossary](#10-glossary)
+8. [Conclusion](#8-conclusion)
+9. [Installation](#9-installation)
+10. [References](#10-references)
+11. [Glossary](#11-glossary)
 
 ---
 
@@ -246,31 +247,43 @@ active-inference-epidemic/
 
 ### Belief Tracking
 
-The agent tracks the hidden infection curve from noisy hospitalisation counts, with uncertainty that shrinks as evidence accumulates. After roughly 3 steps it locks onto the true state despite $\rho = 0.15$.
+The agent tracks the hidden infection curve from noisy hospitalisation counts, locking onto the true state within a few steps despite an ascertainment rate of only $\rho = 0.15$. The uncertainty band widens again in the endemic tail where infection is low and observations are sparse, which is the correct Bayesian behaviour: less data, more uncertainty.
 
 ![Belief Tracking](results/belief_tracking.png)
 
-### Exploration-Exploitation
+### Expected Free Energy Decomposition
 
-The epistemic and pragmatic components of $G$ drive qualitatively different behaviours. Surveillance dominates early (epistemic drive), lockdown dominates at peak (pragmatic drive).
+The epistemic and pragmatic components of $G$ tell different stories. The epistemic term (left) is high early when the state is uncertain and drops as the agent accumulates evidence, surveillance is consistently preferred here. The pragmatic term (right) peaks sharply around day 25 when infection is highest, driving lockdown. The two drives are active at different phases of the epidemic without any hand-coded switching logic.
 
 ![G Decomposition](results/action_decomp.png)
 
 ### Phase Portrait
 
-The agent's belief trajectory closely follows the true $(S, I)$ curve in phase space, despite never observing $S$ or $I$ directly.
+The belief trajectory (dashed) closely follows the true $(S, I)$ curve in phase space despite never observing $S$ or $I$ directly. The chaotic cluster near the origin reflects the endemic tail where the agent repeatedly re-estimates a near-zero infection fraction from noisy observations.
 
 ![Phase Portrait](results/phase_portrait.png)
 
+### Effect of Policy Temperature
+
+Higher temperature $\tau$ leads to a lower peak infection fraction, which is counterintuitive at first: a more stochastic policy outperforms a greedy one. The reason is that at low $\tau$ the agent over-commits to exploitation before the state is well-estimated, whereas higher $\tau$ preserves enough exploration to gather information early and intervene more effectively.
+
+![Temperature Sensitivity](results/temperature_sensitivity.png)
+
 ### Ablation: Value of Epistemic Component
 
-Removing the epistemic drive (greedy agent, $\tau \to 0$) leads to later detection and a higher infection peak. Random policy is the baseline.
+The full Active Inference agent (epistemic + pragmatic) achieves a substantially lower peak than the greedy agent ($\tau \to 0$, pragmatic only), confirming that the epistemic drive contributes meaningfully to epidemic control rather than just being a theoretical nicety. The random baseline performs surprisingly well in the early phase due to accidental surveillance, but fails to sustain suppression.
 
 ![Ablation](results/ablation.png)
 
 ---
 
-## 8. Installation
+## 8. Conclusion
+
+The results show that framing epidemic control as variational inference rather than reward maximisation produces an agent that naturally balances information-gathering and intervention without any explicit exploration bonus. The exploration-exploitation decomposition emerging from a single mathematical objective ($G$) rather than from engineering is the central result, and it suggests that Active Inference may be a principled alternative to RL in any sequential decision problem where the hidden state is partially observable and costly to probe. More broadly, the framework points toward a class of public health policies that are uncertainty-aware by construction: a government that minimises Expected Free Energy would deploy surveillance precisely when it is most epistemically valuable, and intervene precisely when the pragmatic cost of inaction is highest.
+
+---
+
+## 9. Installation
 
 ```bash
 git clone https://github.com/sumayyamanji/mdp_epidemic
@@ -289,7 +302,7 @@ Generate all figures by running `notebooks/exploration.ipynb` cell by cell.
 
 ---
 
-## 9. References
+## 10. References
 
 - Friston, K. et al. (2017). Active inference and epistemic value. *Cognitive Neuroscience*, 8(4), 187-214.
 - Parr, T. and Friston, K. (2019). Generalised free energy and active inference. *Biological Cybernetics*, 113(5-6), 495-513.
@@ -301,11 +314,11 @@ Generate all figures by running `notebooks/exploration.ipynb` cell by cell.
 
 ---
 
-*Built as a demonstration that the mathematics of Bayesian brain theory (Friston's Free Energy Principle) applies directly to public health decision-making.
+*Built as a demonstration that the mathematics of Bayesian brain theory (Friston's Free Energy Principle) applies directly to public health decision-making.*
 
 ---
 
-## 10. Glossary
+## 11. Glossary
 
 **Ascertainment rate** $\rho$: the fraction of true infections that are actually detected and recorded as hospitalisations. In practice $\rho \ll 1$, most cases go unobserved.
 
